@@ -25,17 +25,38 @@ export async function ensurePluginLoaded(sceneId: string, url: string): Promise<
   if (hasScene(sceneId)) return;
 
   try {
-    // Import the ES module from the remote URL dynamically
+    // 1. Try standard dynamic import first
     const module = await import(/* @vite-ignore */ url);
     
     if (module && typeof module.createScene === 'function') {
       registerScene(sceneId, module.createScene);
-    } else {
-      throw new Error("Module does not export a 'createScene' function");
+      return;
     }
+    throw new Error("Module does not export a 'createScene' function");
   } catch (err) {
-    console.error(`[SceneRegistry] Failed to load dynamic plugin from ${url}:`, err);
-    throw err;
+    console.warn(`[SceneRegistry] Standard import failed for ${url}, trying Blob fallback...`, err);
+    
+    try {
+      // 2. Fallback: Fetch the script and load it as a Blob URL
+      const response = await fetch(url);
+      if (!response.ok) throw new Error(`Failed to fetch script: ${response.statusText}`);
+      const scriptText = await response.text();
+      
+      const blob = new Blob([scriptText], { type: 'application/javascript' });
+      const blobUrl = URL.createObjectURL(blob);
+      
+      const module = await import(/* @vite-ignore */ blobUrl);
+      URL.revokeObjectURL(blobUrl); // Clean up
+      
+      if (module && typeof module.createScene === 'function') {
+        registerScene(sceneId, module.createScene);
+        return;
+      }
+      throw new Error("Blob module does not export a 'createScene' function");
+    } catch (fallbackErr) {
+      console.error(`[SceneRegistry] Failed to load dynamic plugin from ${url} (both standard and Blob methods):`, fallbackErr);
+      throw fallbackErr;
+    }
   }
 }
 
