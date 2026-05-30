@@ -123,6 +123,8 @@ export interface CanvasSceneAsset {
     audioUrl?: string;
     /** Cover art / background image URL used by audio (and other) scenes. */
     imageUrl?: string;
+    /** Dynamically injected plugin URL from the resource server. */
+    pluginUrl?: string;
 }
 
 
