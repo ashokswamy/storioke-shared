@@ -18,6 +18,8 @@ export class SceneManager {
     this.root = new Container();
     this.app.stage.addChild(this.root);
     setStageMode(mode);
+    
+    // Set global mode for plugins to read
     if (typeof window !== 'undefined') {
       (window as any).__STORIOKE_MODE__ = this.mode;
     }
