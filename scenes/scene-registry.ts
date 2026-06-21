@@ -71,3 +71,6 @@ export function createSceneFromAsset(asset: CanvasSceneAsset): IScene {
   }
   return factory(asset);
 }
+
+
+

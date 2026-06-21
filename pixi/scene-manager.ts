@@ -2,18 +2,27 @@ import { Container } from 'pixi.js';
 import type { Application } from 'pixi.js';
 import type { IScene, SceneContext, SceneSfxControl, StageMode } from './scene-types';
 import { DESIGN_HEIGHT, DESIGN_WIDTH } from './app';
+import { setStageMode } from './runtime';
 
 export class SceneManager {
   private readonly app: Application;
   private readonly mode: StageMode;
   private readonly root: Container;
+  private readonly resourceBaseUrl: string;
   private activeScene: IScene | null = null;
 
-  constructor(app: Application, mode: StageMode) {
+  constructor(app: Application, mode: StageMode, resourceBaseUrl: string = '') {
     this.app = app;
     this.mode = mode;
+    this.resourceBaseUrl = resourceBaseUrl;
     this.root = new Container();
     this.app.stage.addChild(this.root);
+    setStageMode(mode);
+    
+    // Set global mode for plugins to read
+    if (typeof window !== 'undefined') {
+      (window as any).__STORIOKE_MODE__ = this.mode;
+    }
   }
 
   async mount(scene: IScene): Promise<void> {
@@ -22,12 +31,18 @@ export class SceneManager {
       this.root.removeChildren();
     }
 
+    const designSize = scene.getDesignSize?.() ?? {
+      width: DESIGN_WIDTH,
+      height: DESIGN_HEIGHT
+    };
+
     const ctx: SceneContext = {
       app: this.app,
       root: this.root,
       mode: this.mode,
-      designWidth: DESIGN_WIDTH,
-      designHeight: DESIGN_HEIGHT
+      designWidth: designSize.width,
+      designHeight: designSize.height,
+      resourceBaseUrl: this.resourceBaseUrl
     };
 
     this.activeScene = scene;
