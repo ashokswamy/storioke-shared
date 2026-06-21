@@ -41,6 +41,13 @@ function loadManifest(path: string): Promise<AssetManifest> {
 }
 
 async function loadProfiledTexture(path: string): Promise<Texture> {
+  // In the Scene Builder dev environment, we load the raw asset directly from the local static folder
+  // and bypass the profiled asset resolution.
+  if (typeof window !== 'undefined' && (window as any).__STORIOKE_BUILDER__) {
+    const devPath = path.replace('/media/', '/media/raw/');
+    return Assets.load<Texture>(devPath);
+  }
+
   const resolved = getProfilePath(path);
   if (!resolved.isProfiled) {
     return Assets.load<Texture>(path);
