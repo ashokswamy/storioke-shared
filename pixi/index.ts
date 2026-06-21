@@ -6,4 +6,6 @@ export type { FitScale } from './resize';
 export { loadTextures } from './assets';
 export type { TextureMap } from './assets';
 export { SceneManager } from './scene-manager';
-export type { IScene, SceneContext, SceneSfxControl, StageMode } from './scene-types';
+export type { IScene, SceneContext, SceneSfxControl, StageMode, SceneDesignSize } from './scene-types';
+export { setStageMode, getStageMode, getAssetProfile, createAssetProfileCache } from './runtime';
+export type { AssetProfile } from './runtime';

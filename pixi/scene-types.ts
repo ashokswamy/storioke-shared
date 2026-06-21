@@ -1,6 +1,6 @@
 import type { Application, Container } from 'pixi.js';
 
-export type StageMode = 'preview' | 'renderer' | 'ax';
+export type StageMode = 'preview' | 'preview-hd' | 'renderer';
 
 export interface SceneContext {
   app: Application;
@@ -8,6 +8,12 @@ export interface SceneContext {
   mode: StageMode;
   designWidth: number;
   designHeight: number;
+  resourceBaseUrl: string;
+}
+
+export interface SceneDesignSize {
+  width: number;
+  height: number;
 }
 
 export interface SceneSfxControl {
@@ -28,4 +34,5 @@ export interface IScene {
   stopSfx?(): void;
   resize(w: number, h: number): void;
   destroy(): void;
+  getDesignSize?(): SceneDesignSize;
 }
